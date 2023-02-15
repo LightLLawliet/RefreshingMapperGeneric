@@ -23,7 +23,7 @@ interface Person {
             }
         }
 
-        class FullName() : Mapper<String> {
+        class FullName : Mapper<String> {
             override fun map(id: Int, name: String, surname: String): String {
                 return "$name $surname"
             }
@@ -35,21 +35,24 @@ interface Save<T> {
     fun save(data: T)
 }
 
-interface Read {
-    fun read(idConsumer: IdConsumer)
+interface Read<T> {
+    fun read(consumer: Consumer<T>)
 }
 
-interface IdConsumer {
-    fun useId(id: Int)
+interface Consumer<T> {
+    fun use(data: T)
 }
 
-class SavePersonId : Save<Int>, Read {
+class SavePersonId : Save<Int>, Read<Int> {
     private var id: Int = 0
+
     override fun save(data: Int) {
         id = data
     }
 
-    override fun read(idConsumer: IdConsumer) = idConsumer.useId(id)
+    override fun read(consumer: Consumer<Int>) {
+        consumer.use(id)
+    }
 }
 
 fun main() {
@@ -58,9 +61,9 @@ fun main() {
     val result = person.map(Person.Mapper.Same(personTwo))
     println(result)
 
-    val showId = object : IdConsumer {
-        override fun useId(id: Int) {
-            println(id)
+    val showId = object : Consumer<Int> {
+        override fun use(data: Int) {
+            println(data)
         }
     }
 
