@@ -9,12 +9,26 @@ interface Person {
     interface Mapper<T> {
         fun map(id: Int, name: String, surname: String): T
 
-        class CompareId(private val id: Int) : Mapper<Boolean> {
-            override fun map(id: Int, name: String, surname: String): Boolean = this.id == id
+        open class CompareId(private val id: Int) : Mapper<Boolean> {
+            override fun map(id: Int, name: String, surname: String) = this.id == id
         }
+
+        class CompareContent(private val name: String, id: Int) : CompareId(id) {
+            override fun map(id: Int, name: String, surname: String): Boolean {
+                return super.map(id, name, surname) && name == this.name
+            }
+        }
+
 
         class Same(private val person: Person) : Mapper<Boolean> {
             override fun map(id: Int, name: String, surname: String): Boolean = person.map(CompareId(id))
+        }
+
+        class SameContent(private val person: Person) : Mapper<Boolean> {
+            override fun map(id: Int, name: String, surname: String): Boolean {
+                return person.map(CompareContent(name, id))
+            }
+
         }
 
         class SaveId(private val idContainer: Save<Int>) : Mapper<Unit> {
@@ -27,6 +41,13 @@ interface Person {
             override fun map(id: Int, name: String, surname: String): String {
                 return "$name $surname"
             }
+        }
+
+        class Ui : Mapper<String> {
+            override fun map(id: Int, name: String, surname: String): String {
+                return "Person data:\n Name: $name \n Second Name: $surname"
+            }
+
         }
     }
 }
